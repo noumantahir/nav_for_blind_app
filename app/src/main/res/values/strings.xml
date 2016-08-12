@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">NavigationForBlind</string>
     <string name="action_settings">Settings</string>
-    <string name="local_server">192.168.10.6:3006</string>
+
+    <!-- string values for REST API -->
+    <string name="local_server">http://192.168.10.8:3006/poi/</string>
+    <string name="query_latitude">lati</string>
+    <string name="query_longitude">longi</string>
 </resources>

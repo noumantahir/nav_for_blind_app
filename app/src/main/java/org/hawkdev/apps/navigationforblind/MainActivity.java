@@ -7,22 +7,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.speech.tts.TextToSpeech;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.TextView;
-
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements GpsStatus.Listener {
 
@@ -226,9 +219,42 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         double lati = mLastLocation.getLatitude();
         double longi = mLastLocation.getLongitude();
 
-        String text = "Your Location is " + lati + " Latitube and " + longi + " longitude";
+        String text = "Your Location is " + lati + " Latitude and " + longi + " longitude";
 
         mSpeechProcessor.narrateText(text);
+
+    }
+
+    /**
+     * send location to rest end point
+     * example:
+     * @param view
+     */
+    public void sendLocation(View view){
+
+        AsyncTask sendLocationTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                String lati = mLastLocation.getLatitude() + "";
+                String longi = mLastLocation.getLongitude() + "";
+
+                Uri uri = Uri.parse(getString(R.string.local_server));
+
+                uri.buildUpon()
+                        .appendQueryParameter(getString(R.string.query_latitude), lati)
+                        .appendQueryParameter(getString(R.string.query_longitude), longi)
+                        .build();
+
+                Utility.urlGetRequest(uri);
+
+                mSpeechProcessor.narrateText("Location Sent");
+                return null;
+            }
+        };
+
+        sendLocationTask.execute();
+
+
 
     }
 
