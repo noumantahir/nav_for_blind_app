@@ -17,6 +17,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity implements GpsStatus.Listener {
 
     private static final float LOCATION_REFRESH_DISTANCE = 1.0f;
@@ -245,9 +248,14 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                         .appendQueryParameter(getString(R.string.query_longitude), longi)
                         .build();
 
-                Utility.urlGetRequest(uri);
+                JSONObject responseJSON = Utility.urlGetRequest(uri);
 
-                mSpeechProcessor.narrateText("Location Sent");
+                if(responseJSON != null)
+                    mSpeechProcessor.narrateText("Location Sent");
+                else
+                    mSpeechProcessor.narrateText("Server did not respond");
+
+
                 return null;
             }
         };
