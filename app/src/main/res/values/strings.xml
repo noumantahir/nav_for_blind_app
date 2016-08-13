@@ -4,6 +4,6 @@
 
     <!-- string values for REST API -->
     <string name="local_server">http://192.168.10.8:3006/poi/</string>
-    <string name="query_latitude">lati</string>
-    <string name="query_longitude">longi</string>
+    <string name="query_latitude">lat</string>
+    <string name="query_longitude">lng</string>
 </resources>
