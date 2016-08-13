@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements GpsStatus.Listener {
@@ -250,11 +251,18 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
                 JSONObject responseJSON = Utility.urlGetRequest(uri);
 
-                if(responseJSON != null)
-                    mSpeechProcessor.narrateText("Location Sent");
+                if(responseJSON != null){
+                    //TODO update location view
+
+                    try {
+                        String textToSpeak = responseJSON.getString("say");
+                        mSpeechProcessor.narrateText(textToSpeak);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else
                     mSpeechProcessor.narrateText("Server did not respond");
-
 
                 return null;
             }
