@@ -18,21 +18,32 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.google.maps.*;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
+
 /**
  * Created by nomo on 8/12/16.
  */
 public class Utility {
     private static final String TAG = "UTILITY";
+    private static final GeoApiContext GEOCODE_CONTEXT = new GeoApiContext().setApiKey("AIzaSyBAKY4lG_NDhSbAgV1ibLGeJvRpO6ZuW6I");
+
 
     public static boolean haveLocationAccess(Context context) {
         return (ActivityCompat.checkSelfPermission(context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
                 &&
                 (ActivityCompat.checkSelfPermission(context,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
     }
 
-    public static JSONObject urlGetRequest(Uri uri){
+
+    public static GeocodingResult[] reverseGeocode(LatLng location) throws Exception {
+        return GeocodingApi.reverseGeocode(GEOCODE_CONTEXT, location).await();
+    }
+
+    public static JSONObject urlGetRequest(Uri uri) {
         Log.d(TAG, "Starting post request for url: " + uri);
 
         // These two need to be declared outside the try/catch

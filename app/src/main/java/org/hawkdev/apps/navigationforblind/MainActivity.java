@@ -17,7 +17,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import org.json.JSONArray;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
     /**
      * callback for location permission granted or rejected
+     *
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -143,8 +146,8 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     PERMISSIONS_REQUEST_LOCATION);
-                return;
-            }
+            return;
+        }
 
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //register network location update listener
@@ -192,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
     /**
      * GPS status change listener
+     *
      * @param event
      */
     @Override
@@ -219,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         }
     }
 
-    public void speakLocation(View view){
+    public void speakLocation(View view) {
         double lati = mLastLocation.getLatitude();
         double longi = mLastLocation.getLongitude();
 
@@ -232,38 +236,56 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     /**
      * send location to rest end point
      * example:
+     *
      * @param view
      */
-    public void sendLocation(View view){
+    public void sendLocation(View view) {
 
         AsyncTask sendLocationTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
-                String lati = mLastLocation.getLatitude() + "";
-                String longi = mLastLocation.getLongitude() + "";
 
-                Uri uri = Uri.parse(getString(R.string.local_server));
+                try {
+                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
-                uri.buildUpon()
-                        .appendQueryParameter(getString(R.string.query_latitude), lati)
-                        .appendQueryParameter(getString(R.string.query_longitude), longi)
-                        .build();
+                    if (geoCodeResponse.length > 0) {
+                        mSpeechProcessor.narrateText(geoCodeResponse[0].formattedAddress);
 
-                JSONObject responseJSON = Utility.urlGetRequest(uri);
-
-                if(responseJSON != null){
-                    //TODO update location view
-
-                    try {
-                        String textToSpeak = responseJSON.getString("say");
-                        mSpeechProcessor.narrateText(textToSpeak);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
-                else
-                    mSpeechProcessor.narrateText("Server did not respond");
 
+/*                    String lati = mLastLocation.getLatitude() + "";
+
+                    String longi = mLastLocation.getLongitude() + "";
+
+                    Uri uri = Uri.parse(getString(R.string.local_server));
+
+                    uri.buildUpon()
+                            .appendQueryParameter(getString(R.string.query_latitude), lati)
+                            .appendQueryParameter(getString(R.string.query_longitude), longi)
+                            .build();
+
+                    JSONObject responseJSON = Utility.urlGetRequest(uri);
+
+
+                    if (responseJSON != null) {
+                        //TODO update location view
+
+                        try {
+                            String textToSpeak = responseJSON.getString("say");
+                            mSpeechProcessor.narrateText(textToSpeak);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else
+                        mSpeechProcessor.narrateText("Server did not respond");
+
+                    return null;
+                    */
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ;
+                }
                 return null;
             }
         };
@@ -271,9 +293,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         sendLocationTask.execute();
 
 
-
     }
-
 
 
 }
