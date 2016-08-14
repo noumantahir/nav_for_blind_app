@@ -24,10 +24,11 @@
             android:onClick="speakLocation"/>
 
         <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send Location"
-        android:onClick="sendLocation"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Location"
+            android:enabled="false"
+            android:onClick="sendLocation"/>
 
     </LinearLayout>
 

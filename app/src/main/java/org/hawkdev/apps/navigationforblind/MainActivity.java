@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     private boolean isGPSFix = false;
     private Location mLastLocation;
     private SpeechProcessor mSpeechProcessor;
+    private ShakeListener mShakeListener;
 
 
     @Override
@@ -114,6 +115,15 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
         //initilize narrator
         mSpeechProcessor = new SpeechProcessor(this);
+
+        //init shake listener
+        mShakeListener = new ShakeListener(this);
+        mShakeListener.setOnShakeListener(new ShakeListener.OnShakeListener() {
+            @Override
+            public void onShake() {
+                speakLocation();
+            }
+        });
     }
 
 
@@ -224,12 +234,39 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     }
 
     public void speakLocation(View view) {
-        double lati = mLastLocation.getLatitude();
-        double longi = mLastLocation.getLongitude();
+        speakLocation();
 
-        String text = "Your Location is " + lati + " Latitude and " + longi + " longitude";
+//        double lati = mLastLocation.getLatitude();
+//        double longi = mLastLocation.getLongitude();
+//
+//        String text = "Your Location is " + lati + " Latitude and " + longi + " longitude";
+//
+//        mSpeechProcessor.narrateText(text);
 
-        mSpeechProcessor.narrateText(text);
+    }
+
+    public void speakLocation(){
+        AsyncTask speakLocationTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+
+                try {
+                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+
+                    if (geoCodeResponse.length > 0) {
+                        String location = geoCodeResponse[0].formattedAddress;
+
+                        mSpeechProcessor.narrateText("You are at " + location);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+
+        speakLocationTask.execute();
 
     }
 
