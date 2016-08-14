@@ -2,6 +2,8 @@ package org.hawkdev.apps.navigationforblind;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
@@ -19,6 +21,8 @@ import android.widget.TextView;
 import com.google.maps.model.AddressComponent;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements GpsStatus.Listener {
 
@@ -190,14 +194,14 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         Log.d(TAG, fastLocation.toString());
         tvLocation.setText(fastLocation.toString() + "-----------" + data_id++);
 
+        mLastLocation = fastLocation;
+        mLastLocationMillis = SystemClock.elapsedRealtime();
+
         //set last known fine location
         Location fastFineLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Log.d(TAG, fastFineLocation.toString());
         tvFineLocation.setText(fastFineLocation.toString() + "-----------" + data_id_fine++);
 
-
-        mLastLocation = fastFineLocation;
-        mLastLocationMillis = SystemClock.elapsedRealtime();
     }
 
     /**
@@ -250,18 +254,22 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
             protected Object doInBackground(Object[] params) {
 
                 try {
-                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(
+                            new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
                     if (geoCodeResponse.length > 0) {
-                        String location = geoCodeResponse[0].formattedAddress;
 
+                        Geocoder geoCoder = new Geocoder(MainActivity.this);
+                        List<Address> matches = geoCoder.getFromLocation(mLastLocation.getLatitude(),
+                                mLastLocation.getLongitude(), 1);
+                        Address address = (matches.isEmpty() ? null : matches.get(0));
 
-                        GeocodingResult bestMatch = geoCodeResponse[0];
-                        AddressComponent addressNumber = bestMatch.addressComponents[0];
-                        AddressComponent addressStreet = bestMatch.addressComponents[1];
+                        String addressString = address.getSubThoroughfare() + " ";
+                        addressString += address.getThoroughfare() + " ";
+                        addressString += address.getSubLocality();
 
                         mSpeechProcessor.narrateText("You are at "
-                                + addressNumber.longName + " " + addressStreet.longName);
+                                + addressString);
 
                     }
 
