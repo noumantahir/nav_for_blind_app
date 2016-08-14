@@ -243,6 +243,8 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     }
 
     public void speakLocation() {
+        mSpeechProcessor.narrateText("Getting Location");
+
         AsyncTask speakLocationTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
@@ -282,21 +284,23 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
      */
     public void sendLocation(View view) {
 
-        AsyncTask sendLocationTask = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] params) {
+        //TODO refer to speakLocation method for now
 
-                try {
-                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-
-                    if (geoCodeResponse.length > 0) {
-                        GeocodingResult bestMatch = geoCodeResponse[0];
-                        AddressComponent addressNumber = bestMatch.addressComponents[0];
-                        AddressComponent addressStreet = bestMatch.addressComponents[1];
-
-                        mSpeechProcessor.narrateText(addressNumber.longName + " " + addressStreet.longName);
-
-                    }
+//        AsyncTask sendLocationTask = new AsyncTask() {
+//            @Override
+//            protected Object doInBackground(Object[] params) {
+//
+//                try {
+//                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+//
+//                    if (geoCodeResponse.length > 0) {
+//                        GeocodingResult bestMatch = geoCodeResponse[0];
+//                        AddressComponent addressNumber = bestMatch.addressComponents[0];
+//                        AddressComponent addressStreet = bestMatch.addressComponents[1];
+//
+//                        mSpeechProcessor.narrateText(addressNumber.longName + " " + addressStreet.longName);
+//
+//                    }
 
 /*                    String lati = mLastLocation.getLatitude() + "";
 
@@ -327,15 +331,15 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                     return null;
                     */
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                }
-                return null;
-            }
-        };
-
-        sendLocationTask.execute();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//
+//                }
+//                return null;
+//            }
+//        };
+//
+//        sendLocationTask.execute();
     }
 
     @Override

@@ -38,8 +38,8 @@ public class SpeechProcessor {
 
     public void narrateText(String text){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
         else
-            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, this.hashCode() + "");
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null, this.hashCode() + "");
     }
 }
