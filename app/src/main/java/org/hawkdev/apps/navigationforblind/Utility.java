@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -17,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import com.google.maps.*;
 import com.google.maps.model.GeocodingResult;
@@ -42,6 +45,35 @@ public class Utility {
     public static GeocodingResult[] reverseGeocode(LatLng location) throws Exception {
         return GeocodingApi.reverseGeocode(GEOCODE_CONTEXT, location).await();
     }
+
+    public static String reverseGeocode(Context context, LatLng location) {
+        //get address
+        Geocoder geoCoder = new Geocoder(context);
+        List<Address> matches = null;
+        try {
+            matches = geoCoder.getFromLocation(location.lat,
+                    location.lng, 4);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        Address address = (matches.isEmpty() ? null : matches.get(0));
+
+        if(address == null)
+            return null;
+
+        //compile address string
+        String addressString = address.getSubThoroughfare() + " ";
+        addressString += address.getThoroughfare() + " ";
+        addressString += address.getSubLocality();
+
+        //replace any null value with ""
+        addressString = addressString.replaceAll("null", "");
+
+        return addressString;
+    }
+
+
 
     public static JSONObject urlGetRequest(Uri uri) {
         Log.d(TAG, "Starting post request for url: " + uri);

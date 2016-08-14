@@ -46,6 +46,11 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
             Log.d(TAG, "Updated Location: " + location.toString());
             tvLocation.setText(location.toString() + "-----------" + data_id++);
 
+            if(!isGPSFix){
+                mLastLocation = location;
+                mLastLocationMillis = SystemClock.elapsedRealtime();
+            }
+
         }
 
         @Override
@@ -71,8 +76,8 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
             Log.d(TAG, "Fine Updated Location: " + location.toString());
             tvFineLocation.setText(location.toString() + "-----------" + data_id_fine++);
 
-            mLastLocationMillis = SystemClock.elapsedRealtime();
             mLastLocation = location;
+            mLastLocationMillis = SystemClock.elapsedRealtime();
         }
 
         @Override
@@ -194,13 +199,18 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         Log.d(TAG, fastLocation.toString());
         tvLocation.setText(fastLocation.toString() + "-----------" + data_id++);
 
-        mLastLocation = fastLocation;
-        mLastLocationMillis = SystemClock.elapsedRealtime();
-
         //set last known fine location
         Location fastFineLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Log.d(TAG, fastFineLocation.toString());
         tvFineLocation.setText(fastFineLocation.toString() + "-----------" + data_id_fine++);
+
+        //set last known location
+        if(isGPSFix)
+            mLastLocation = fastFineLocation;
+        else
+            mLastLocation = fastLocation;
+
+        mLastLocationMillis = SystemClock.elapsedRealtime();
 
     }
 
@@ -246,6 +256,11 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
     }
 
+
+    //32.086401, 72.661327 - City Road Sargodha
+    //32.077125, 72.674166 - Club Road Sargodha
+    //32.088151, 72.661553 - Girl College Rd
+    //32.088545, 72.659975 - 16 Block
     public void speakLocation() {
         mSpeechProcessor.narrateText("Getting Location");
 
@@ -253,30 +268,35 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
             @Override
             protected Object doInBackground(Object[] params) {
 
-                try {
-                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(
-                            new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                String addressString = Utility.reverseGeocode(MainActivity.this , latLng);
 
-                    if (geoCodeResponse.length > 0) {
+                if(addressString != null)
+                    mSpeechProcessor.narrateText("You are at " + addressString);
+                else
+                    mSpeechProcessor.narrateText("Could not get location");
 
-                        Geocoder geoCoder = new Geocoder(MainActivity.this);
-                        List<Address> matches = geoCoder.getFromLocation(mLastLocation.getLatitude(),
-                                mLastLocation.getLongitude(), 1);
-                        Address address = (matches.isEmpty() ? null : matches.get(0));
-
-                        String addressString = address.getSubThoroughfare() + " ";
-                        addressString += address.getThoroughfare() + " ";
-                        addressString += address.getSubLocality();
-
-                        mSpeechProcessor.narrateText("You are at "
-                                + addressString);
-
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 return null;
+
+//                try {
+//                    GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+//
+//                    if (geoCodeResponse.length > 0) {
+//                        String location = geoCodeResponse[0].formattedAddress;
+//
+//
+//                        GeocodingResult bestMatch = geoCodeResponse[0];
+//                        AddressComponent addressNumber = bestMatch.addressComponents[0];
+//                        AddressComponent addressStreet = bestMatch.addressComponents[1];
+//
+//                        mSpeechProcessor.narrateText("You are at "
+//                                + addressNumber.longName + " " + addressStreet.longName);
+//
+//                    }
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
             }
         };
 
