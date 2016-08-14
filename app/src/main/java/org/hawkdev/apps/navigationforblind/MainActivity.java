@@ -6,7 +6,6 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -17,11 +16,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.maps.model.AddressComponent;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements GpsStatus.Listener {
 
@@ -249,7 +246,11 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                     GeocodingResult[] geoCodeResponse = Utility.reverseGeocode(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
                     if (geoCodeResponse.length > 0) {
-                        mSpeechProcessor.narrateText(geoCodeResponse[0].formattedAddress);
+                        GeocodingResult bestMatch = geoCodeResponse[0];
+                        AddressComponent addressNumber = bestMatch.addressComponents[0];
+                        AddressComponent addressStreet = bestMatch.addressComponents[1];
+
+                        mSpeechProcessor.narrateText(addressNumber.longName + " " + addressStreet.longName);
 
                     }
 
@@ -284,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    ;
+
                 }
                 return null;
             }
