@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
     }
 
-    public void speakLocation(){
+    public void speakLocation() {
         AsyncTask speakLocationTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
@@ -253,7 +253,14 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                     if (geoCodeResponse.length > 0) {
                         String location = geoCodeResponse[0].formattedAddress;
 
-                        mSpeechProcessor.narrateText("You are at " + location);
+
+                        GeocodingResult bestMatch = geoCodeResponse[0];
+                        AddressComponent addressNumber = bestMatch.addressComponents[0];
+                        AddressComponent addressStreet = bestMatch.addressComponents[1];
+
+                        mSpeechProcessor.narrateText("You are at "
+                                + addressNumber.longName + " " + addressStreet.longName);
+
                     }
 
                 } catch (Exception e) {
