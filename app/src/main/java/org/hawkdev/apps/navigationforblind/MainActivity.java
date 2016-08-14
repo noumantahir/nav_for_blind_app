@@ -338,14 +338,18 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         sendLocationTask.execute();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mShakeListener.resume();
+    }
+
 
     @Override
     protected void onPause() {
         super.onPause();
+        mShakeListener.pause();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
+
 }
