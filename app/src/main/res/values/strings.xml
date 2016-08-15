@@ -1,9 +1,12 @@
 <resources>
-    <string name="app_name">Navigation For Blind (Proto)</string>
+    <string name="app_name">Navigation For The Blind</string>
     <string name="action_settings">Settings</string>
 
     <!-- string values for REST API -->
     <string name="local_server">http://192.168.10.8:3006/poi/</string>
     <string name="query_latitude">lat</string>
     <string name="query_longitude">lng</string>
+    <string name="instructions">Shake phone to get your current location</string>
+    <string name="welcome">Welcome to navigation app for visually challenged people</string>
+    <string name="post_instrucitons">Tap the screen to repeat instructions</string>
 </resources>

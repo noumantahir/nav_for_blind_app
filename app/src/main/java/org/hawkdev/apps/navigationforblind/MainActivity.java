@@ -1,6 +1,7 @@
 package org.hawkdev.apps.navigationforblind;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -8,6 +9,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -130,8 +132,16 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                 speakLocation();
             }
         });
+
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        mSpeechProcessor.narrateText(getString(R.string.welcome));
+        mSpeechProcessor.narrateText(getString(R.string.instructions));
+    }
 
     /**
      * callback for location permission granted or rejected
@@ -196,19 +206,24 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
         //set last known coarse location
         Location fastLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        Log.d(TAG, fastLocation.toString());
-        tvLocation.setText(fastLocation.toString() + "-----------" + data_id++);
+        if(fastLocation != null) {
+            Log.d(TAG, fastLocation.toString());
+            tvLocation.setText(fastLocation.toString() + "-----------" + data_id++);
+
+            //set last known location
+            if(!isGPSFix)
+                mLastLocation = fastLocation;
+        }
 
         //set last known fine location
         Location fastFineLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Log.d(TAG, fastFineLocation.toString());
-        tvFineLocation.setText(fastFineLocation.toString() + "-----------" + data_id_fine++);
-
-        //set last known location
-        if(isGPSFix)
-            mLastLocation = fastFineLocation;
-        else
-            mLastLocation = fastLocation;
+        if(fastFineLocation != null) {
+            Log.d(TAG, fastFineLocation.toString());
+            tvFineLocation.setText(fastFineLocation.toString() + "-----------" + data_id_fine++);
+            //set last known location
+            if(isGPSFix)
+                mLastLocation = fastFineLocation;
+        }
 
         mLastLocationMillis = SystemClock.elapsedRealtime();
 
@@ -302,6 +317,15 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
         speakLocationTask.execute();
 
+    }
+
+    public void repeatInstructions(View view){
+        mSpeechProcessor.narrateText(getString(R.string.instructions));
+    }
+
+    public void openProject(View view){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.collaborizm.com/project/ByP-RLfF"));
+        startActivity(browserIntent);
     }
 
     /**
