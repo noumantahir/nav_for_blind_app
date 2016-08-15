@@ -18,8 +18,19 @@ public class SpeechProcessor {
 
     private final TextToSpeech textToSpeech;
 //    private final SpeechRecognizer speechRecognizer;
+    private OnTtsInitListener mOnTtsInitListener;
+
     private Context context;
 
+    public interface OnTtsInitListener
+    {
+        public void onInit();
+    }
+
+    public void setOnTtsInitListener(OnTtsInitListener listener)
+    {
+        mOnTtsInitListener = listener;
+    }
 
     public SpeechProcessor(final Context context){
 
@@ -29,9 +40,9 @@ public class SpeechProcessor {
                 if(status != TextToSpeech.ERROR) {
                     textToSpeech.setLanguage(Locale.UK);
 
-                    narrateText(context.getString(R.string.welcome));
-                    narrateText(context.getString(R.string.instructions));
-                    narrateText(context.getString(R.string.post_instrucitons));
+                    if (mOnTtsInitListener != null) {
+                        mOnTtsInitListener.onInit();
+                    }
                 }
             }
         });

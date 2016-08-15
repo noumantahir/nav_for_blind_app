@@ -8,5 +8,5 @@
     <string name="query_longitude">lng</string>
     <string name="instructions">Shake phone to get your current location</string>
     <string name="welcome">Welcome to navigation app for visually challenged people</string>
-    <string name="post_instrucitons">Tap the screen to repeat instructions</string>
+    <string name="post_instructions">Tap the screen to repeat instructions</string>
 </resources>

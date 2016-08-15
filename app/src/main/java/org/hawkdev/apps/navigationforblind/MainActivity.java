@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.maps.model.AddressComponent;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     private TextView tvLocation;
     private TextView tvFineLocation;
     private TextView tvGpsStatus;
+
+    private ProgressBar progressBar;
 
     private final LocationListener mLocationListener = new LocationListener() {
         @Override
@@ -98,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         }
     };
 
-
     private boolean isGPSFix = false;
     private Location mLastLocation;
     private SpeechProcessor mSpeechProcessor;
@@ -116,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
         tvLocation = (TextView) findViewById(R.id.tv_location);
         tvFineLocation = (TextView) findViewById(R.id.tv_fine_location);
         tvGpsStatus = (TextView) findViewById(R.id.tv_gps_status);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.VISIBLE);
 
         //initialize location fields
         requestLocationUpdates();
@@ -123,6 +127,18 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
 
         //initilize narrator
         mSpeechProcessor = new SpeechProcessor(this);
+        mSpeechProcessor.setOnTtsInitListener(new SpeechProcessor.OnTtsInitListener() {
+            @Override
+            public void onInit() {
+                //remove progress bar
+                progressBar.setVisibility(View.INVISIBLE);
+
+                //narrate note
+                mSpeechProcessor.narrateText(getString(R.string.welcome));
+                mSpeechProcessor.narrateText(getString(R.string.instructions));
+                mSpeechProcessor.narrateText(getString(R.string.post_instructions));
+            }
+        });
 
         //init shake listener
         mShakeListener = new ShakeListener(this);
@@ -166,6 +182,8 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
      * register callbacks for location updates
      */
     private void requestLocationUpdates() {
+
+        //check if location accessis granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //request write external storage permission
             ActivityCompat.requestPermissions(this,
@@ -174,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
                     PERMISSIONS_REQUEST_LOCATION);
             return;
         }
+
 
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //register network location update listener
@@ -398,6 +417,10 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     protected void onResume() {
         super.onResume();
         mShakeListener.resume();
+        if(mLocationManager != null) {
+            mLocationManager.addGpsStatusListener(this);
+        }
+
     }
 
 
@@ -405,6 +428,9 @@ public class MainActivity extends AppCompatActivity implements GpsStatus.Listene
     protected void onPause() {
         super.onPause();
         mShakeListener.pause();
+        if(mLocationManager != null) {
+            mLocationManager.removeGpsStatusListener(this);
+        }
     }
 
 
